@@ -1,0 +1,57 @@
+strength.inc
+------------
+assess password strength. Returns 0.0 (very strong) to 1.0 (very weak)
+
+algorithm
+---------
+4 classes (uppercase letters, lowercase letters, digits and symbols) are expected
+to have 1/4 distribution each (0.25). The deviation is calculated and the square root of
+the sum of the squares is taken.
+
+Consecutive identical characters also decrease the strength, as do the number of consecutive identical
+character groups. The numbers are calculated as follows:
+   d_sequence = longest sequence / actual length;
+   d_groups = (number of sequantial groups * 2.0) / actual length;
+These numbers are added to the square root of the sum of the squares.
+
+The strength is decreased if the length of the password is below the minimum:
+   log(mimimum length / actual length)
+This is added to the square root of the sum of the squares.
+
+The strength is increased if it is longer (until maximum). The contribution is linear and proportional
+to the contributing factor (default 50% of the calculated weakness).
+
+The algorithm may result in weakness values slightly larger than 1.0. As these are irrelevant, they
+are reduced to 1.0
+
+In addition to the password, the following defaults may be modified in the call:
+
+
+$minimum = 8          minimum password length (if shorter, the weakness increases strongly).
+$maximum = 20         maximum contributing number of extra characters in longer passwords
+$contributing = 50    percentage contributing factor for longer passwords
+
+e.g   strength("B0cKBiE4")     yields 0.353553390593 (strong)
+      strength("B0cKBiE4", 10) yields 0.418082580949 (medium)
+
+i.e. the strength is dependent on the expected password length
+
+examples
+--------
+
++--------------+----------------+-------------+---------------------------------------------+ 
+| password     | value          | class       | remarks                                     |
++--------------+----------------+-------------+---------------------------------------------+ 
+| aB-0cD=9     | 0.0            | very strong |                                             |
+| B0cKBiE4     | 0.353553390593 | strong      |                                             |
+| 1nStall@teUr | 0.46837484988  | medium      | no digits, only one symbol, sequence 'll'   |
+| geheim       | 0.912557381653 | very weak   | only lowercase characters                   |
+| geheimpjes   | 0.822724133595 | very weak   | slightly better because longer than minimum |
++--------------+----------------+-------------+---------------------------------------------+ 
+
+bugs
+----
+Only single character repeats are detected. e.g.
+
+aZ-0 has a value of 0.69314718056
+aZ-0aZ-0 has a value of 0 but should be at least 0.1 ~ 0.2
