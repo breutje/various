@@ -1,3 +1,6 @@
+//
+// StringReplace - str_replace (php) inspired
+//
 std::string& StringReplace(const std::string& search, const std::string& replace, std::string& subject, int* count /* = nullptr */)
 {
    if (count != nullptr)
